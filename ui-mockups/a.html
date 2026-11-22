@@ -1,0 +1,202 @@
+<!doctype html><html><head><meta charset="utf-8"><title>方案A · 原生分组 · iOS HIG</title><style>
+/* ── 设计令牌（Apple HIG Dark + Liquid Glass 纯CSS回退） ── */
+:root{
+  --blue:#0A84FF;--green:#30D158;--red:#FF453A;--orange:#FF9F0A;--purple:#BF5AF2;
+  --gray:#8E8E93;--sep:rgba(255,255,255,.08);--text2:rgba(255,255,255,.55);
+  --fill:rgba(120,120,128,.24);
+}
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:#0a0a0c;font-family:-apple-system,'SF Pro Text','PingFang SC','Segoe UI',sans-serif;color:#fff;
+  display:flex;justify-content:center;padding:28px 0 70px;
+  -webkit-font-smoothing:antialiased}
+.wrap{width:460px}
+.frame{border:1px dashed rgba(255,255,255,.18);border-radius:8px;padding:18px;margin:0 0 40px}
+.framehead{font-size:11px;color:#6e6e73;margin-bottom:12px;font-family:ui-monospace,monospace;letter-spacing:.4px}
+.sec{font-size:11px;font-weight:600;letter-spacing:.8px;text-transform:uppercase;color:#8e8e93;margin:20px 6px 8px}
+/* ── 玻璃材质卡（liquid glass 纯CSS回退） ── */
+.card{position:relative;border-radius:18px;overflow:hidden;
+  background:linear-gradient(165deg,rgba(255,255,255,.075),rgba(255,255,255,.028) 60%);
+  backdrop-filter:blur(28px) saturate(180%);-webkit-backdrop-filter:blur(28px) saturate(180%);
+  border:1px solid rgba(255,255,255,.09);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.14),inset 0 -1px 0 rgba(0,0,0,.30),0 12px 44px rgba(0,0,0,.5)}
+.card::before{content:'';position:absolute;top:0;left:8%;right:8%;height:1px;
+  background:linear-gradient(90deg,transparent,rgba(255,255,255,.22),transparent)}
+.header{display:flex;align-items:center;justify-content:space-between;padding:16px 16px}
+.hleft{display:flex;gap:12px;align-items:center}
+.appicon{width:44px;height:44px;border-radius:12px;background:linear-gradient(145deg,#0A84FF,#0050C8);
+  display:flex;align-items:center;justify-content:center;font-size:21px;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.35),0 4px 14px rgba(10,132,255,.4)}
+h1{font-size:19px;font-weight:700;letter-spacing:-.2px}
+.sub{font-size:11.5px;color:var(--text2);margin-top:2px}
+.hright{display:flex;align-items:center;gap:10px}
+/* 分段控件（iOS 原生规格） */
+.seg{display:flex;background:var(--fill);border-radius:10px;padding:2px}
+.seg div{padding:5px 11px;font-size:12px;border-radius:8px;color:var(--text2);white-space:nowrap;transition:.18s}
+.seg .on{background:rgba(255,255,255,.22);color:#fff;font-weight:600;
+  box-shadow:0 1px 4px rgba(0,0,0,.35),inset 0 1px 0 rgba(255,255,255,.18)}
+.refresh{width:36px;height:36px;border-radius:50%;background:var(--fill);
+  display:flex;align-items:center;justify-content:center;font-size:14px;color:#fff}
+.tabbar{display:grid;grid-template-columns:repeat(3,1fr);margin:14px 0;overflow:hidden;border-radius:14px}
+.tabbar div{padding:10px 0;text-align:center;font-size:13px;color:var(--text2)}
+.tabbar .on{color:var(--blue);font-weight:700;background:rgba(10,132,255,.12)}
+.toolbar{display:flex;align-items:center;justify-content:space-between;padding:2px 2px 12px}
+.cnt{font-size:12.5px;font-weight:600;color:var(--blue)}
+.btnrow{display:flex;gap:8px}
+.btn{font-size:12px;padding:6px 12px;border-radius:10px;background:var(--fill);color:#fff;font-weight:500}
+.btn.p{color:var(--blue);background:rgba(10,132,255,.16)}
+/* stat strip：四格对称 + 发丝分隔 */
+.strip{display:grid;grid-template-columns:repeat(4,1fr)}
+.strip div{padding:13px 6px;text-align:center}
+.strip div+div{border-left:1px solid var(--sep)}
+.lab{font-size:10px;color:var(--gray);letter-spacing:.3px}
+.val{font-size:17px;font-weight:700;margin-top:3px;font-variant-numeric:tabular-nums;letter-spacing:-.3px}
+.val small{font-size:10px;font-weight:600;color:var(--green)}
+/* 账号行 */
+.acct{padding:12px 14px;border-top:1px solid var(--sep)}
+.arow{display:flex;align-items:center;gap:11px}
+.av{width:36px;height:36px;border-radius:50%;background:linear-gradient(145deg,#3a3a3e,#232326);
+  display:flex;align-items:center;justify-content:center;font-size:13px;color:#c7c7cc;flex-shrink:0;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.12)}
+.an{font-size:13.5px;font-weight:600}
+.atags{display:flex;gap:5px;margin-top:3px;align-items:center}
+.tag{font-size:9.5px;padding:1.5px 7px;border-radius:6px;font-weight:600}
+.tag-cli{color:var(--blue);background:rgba(10,132,255,.16)}
+.tag-dx{color:var(--purple);background:rgba(191,90,242,.16)}
+.tag-site{color:var(--gray);background:rgba(255,255,255,.06)}
+.aq{margin-left:auto;text-align:right;font-variant-numeric:tabular-nums}
+.aq .n{font-size:14px;font-weight:700;color:var(--green)}
+.aq .n.warn{color:var(--orange)}
+.aq .l{font-size:9.5px;color:var(--gray)}
+/* iOS 开关 51×31 等比 */
+.sw{width:44px;height:27px;border-radius:14px;background:var(--green);position:relative;flex-shrink:0;
+  box-shadow:inset 0 1px 2px rgba(0,0,0,.2)}
+.sw::after{content:'';position:absolute;width:23px;height:23px;border-radius:50%;background:#fff;
+  top:2px;right:2px;box-shadow:0 2px 5px rgba(0,0,0,.3)}
+.sw.off{background:rgba(120,120,128,.32)}.sw.off::after{left:2px;right:auto}
+.claim{font-size:11px;padding:5px 11px;border-radius:10px;background:rgba(255,255,255,.08);color:#fff;font-weight:500}
+.acsub{display:flex;justify-content:space-between;font-size:11px;color:var(--text2);margin-top:7px;padding-left:47px}
+.warn{color:var(--orange)}
+/* 模型管理 */
+.model{display:flex;align-items:center;gap:10px;padding:11px 14px;border-top:1px solid var(--sep);font-size:12.5px}
+.mn{font-weight:600;color:#fff}
+.mtag{font-size:9.5px;padding:1.5px 7px;border-radius:6px;font-weight:600}
+.mtag.f{color:var(--green);background:rgba(48,209,88,.14)}
+.mdesc{font-size:10.5px;color:var(--text2);margin-top:2px}
+.mleft{flex:1}
+.default{font-size:11px;padding:5px 11px;border-radius:10px;background:rgba(10,132,255,.18);color:var(--blue);font-weight:600;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.12)}
+/* 网关 */
+.header2{display:flex;align-items:center;justify-content:space-between;padding:13px 14px}
+.pill-ok{font-size:11px;padding:3px 10px;border-radius:99px;color:var(--green);background:rgba(48,209,88,.13);font-weight:600}
+.grid2{display:grid;grid-template-columns:repeat(2,1fr)}
+.grid2 div{padding:10px 14px}
+.grid2 div:nth-child(odd){border-right:1px solid var(--sep)}
+.grid2 div:nth-child(n+3){border-top:1px solid var(--sep)}
+.ep{display:flex;align-items:center;gap:10px;padding:10px 14px;border-top:1px solid var(--sep);font-size:12px}
+.ep .k{font-size:10.5px;color:var(--gray);width:66px;flex-shrink:0}
+.ep .v{font-family:ui-monospace,'SF Mono',monospace;flex:1;color:rgba(255,255,255,.92);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.copy{font-size:11px;color:var(--blue);flex-shrink:0;font-weight:500}
+.note{padding:11px 14px;font-size:11.5px;color:var(--text2)}
+/* 调用记录表（8列） */
+.loghead{display:grid;grid-template-columns:52px 1.1fr .9fr 40px 42px 36px 52px 46px;gap:6px;padding:8px 14px;font-size:10px;font-weight:600;color:var(--gray);letter-spacing:.4px}
+.loghead span:nth-child(n+4){text-align:right}
+.row{display:grid;grid-template-columns:52px 1.1fr .9fr 40px 42px 36px 52px 46px;gap:6px;align-items:center;padding:7px 14px;border-top:1px solid var(--sep);font-size:12px;font-variant-numeric:tabular-nums}
+.row .t{color:var(--gray);font-family:ui-monospace,'SF Mono',monospace;font-size:10.5px}
+.row .m{color:var(--blue);font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.row .a{color:rgba(255,255,255,.85);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ch-cli{color:var(--blue);font-weight:600;font-size:10.5px}
+.ch-dx{color:var(--purple);font-weight:600;font-size:10.5px}
+.c{color:var(--green);text-align:right}
+.c.z{color:var(--gray)}
+.k{color:rgba(255,255,255,.88);text-align:right}
+.s{text-align:right;font-weight:700}
+.ok{color:var(--green)}.bad{color:var(--red);font-size:10.5px}
+</style></head><body><div class="wrap">
+
+<div class="frame"><div class="framehead">方案 A · 原生分组 — ① 账号（默认页）</div>
+<div class="header card">
+ <div class="hleft"><div class="appicon">⚡</div><div><h1>DX Zcode</h1><div class="sub">多账号池 · 领福利 · 官方直连网关 · 零 3012 风控</div></div></div>
+ <div class="hright"><div class="seg"><div class="on">CLI通道</div><div>直连通道</div></div><div class="refresh">⟳</div></div>
+</div>
+<div class="tabbar card"><div class="on">账号</div><div>网关</div><div>调用记录</div></div>
+<div class="toolbar"><div class="cnt">账号数量 (5)</div><div class="btnrow"><div class="btn p">模型管理 (4)</div><div class="btn">登录·国内</div><div class="btn">登录·国际</div><div class="btn">探测福利</div></div></div>
+<div class="card">
+ <div class="strip">
+  <div><div class="lab">活跃账号</div><div class="val">5</div></div>
+  <div><div class="lab">可用额度</div><div class="val" style="color:var(--green)">25.1亿</div></div>
+  <div><div class="lab">待生效</div><div class="val">0</div></div>
+  <div><div class="lab">支持模型</div><div class="val" style="color:var(--blue)">4</div></div>
+ </div>
+ <div class="acct"><div class="arow"><div class="av">窦</div><div><div class="an">用户甲</div><div class="atags"><span class="tag tag-cli">CLI通道</span><span class="tag tag-site">国际站</span></div></div><div class="aq"><div class="n">5.07亿</div><div class="l">可用额度</div></div><div class="sw"></div><div class="claim">领取</div></div><div class="acsub"><span>套餐：ZCODE WEEKEND BUILD</span><span>● 正常</span></div></div>
+ <div class="acct"><div class="arow"><div class="av">杜</div><div><div class="an">用户乙</div><div class="atags"><span class="tag tag-cli">CLI通道</span><span class="tag tag-site">国际站</span></div></div><div class="aq"><div class="n">5.00亿</div><div class="l">可用额度</div></div><div class="sw"></div><div class="claim">领取</div></div><div class="acsub"><span>套餐：ZCODE WEEKEND BUILD</span><span>● 正常</span></div></div>
+ <div class="acct"><div class="arow"><div class="av">do</div><div><div class="an">demo_user</div><div class="atags"><span class="tag tag-cli">CLI通道</span><span class="tag tag-site">国际站</span></div></div><div class="aq"><div class="n warn">4.52亿</div><div class="l">可用额度</div></div><div class="sw"></div><div class="claim">领取</div></div><div class="acsub"><span>套餐：ZCODE WEEKEND BUILD</span><span class="warn">● 额度偏低</span></div></div>
+ <div class="acct"><div class="arow"><div class="av">99</div><div><div class="an">996636269@qq.com</div><div class="atags"><span class="tag tag-cli">CLI通道</span><span class="tag tag-site">国际站</span></div></div><div class="aq"><div class="n">4.99亿</div><div class="l">可用额度</div></div><div class="sw"></div><div class="claim">领取</div></div><div class="acsub"><span>套餐：ZCODE WEEKEND BUILD</span><span>● 正常</span></div></div>
+</div>
+<div class="sec">模型管理 · MODELS</div>
+<div class="card">
+ <div class="model"><div class="mleft"><span class="mn">GLM-5.3-Flash</span><span class="mtag f">福利通道</span><div class="mdesc">福利额度专享 · 优先抵扣官方福利包</div></div><div class="default">默认</div><div class="sw"></div></div>
+ <div class="model"><div class="mleft"><span class="mn">GLM-5.3</span><div class="mdesc">旗舰深度思考 · 消耗账户通用额度</div></div><div class="sw"></div></div>
+ <div class="model"><div class="mleft"><span class="mn">GLM-5.2</span><div class="mdesc">高精度主力模型</div></div><div class="sw off"></div></div>
+ <div class="model"><div class="mleft"><span class="mn">GLM-5-Turbo</span><div class="mdesc">极速轻量模型</div></div><div class="sw off"></div></div>
+</div>
+</div>
+
+<div class="frame"><div class="framehead">方案 A · 原生分组 — ② 网关</div>
+<div class="header card">
+ <div class="hleft"><div class="appicon">⚡</div><div><h1>DX Zcode</h1></div></div>
+ <div class="hright"><div class="seg"><div>CLI通道</div><div class="on">直连通道</div></div><div class="refresh">⟳</div></div>
+</div>
+<div class="tabbar card"><div>账号</div><div class="on">网关</div><div>调用记录</div></div>
+<div class="card">
+ <div class="header2"><div style="display:flex;align-items:center;gap:9px"><strong style="font-size:13.5px">官方直连网关</strong><span class="pill-ok">● 运行中</span></div><div class="sw"></div></div>
+ <div class="grid2">
+  <div><div class="lab">端口</div><div class="val">8788</div></div>
+  <div><div class="lab">主机</div><div class="val" style="font-size:13px">127.0.0.1</div></div>
+  <div><div class="lab">运行时长</div><div class="val">2<small> 小时</small></div></div>
+  <div><div class="lab">请求数</div><div class="val">6</div></div>
+ </div>
+</div>
+<div class="sec">API 端点 · ENDPOINTS</div>
+<div class="card">
+ <div class="ep" style="border-top:none"><span class="k">API KEY</span><span class="v">sk-dxzcode（免密模式）</span><span class="copy">复制</span></div>
+ <div class="ep"><span class="k">OpenAI</span><span class="v">http://127.0.0.1:8788/v1</span><span class="copy">复制</span></div>
+ <div class="ep"><span class="k">Anthropic</span><span class="v">http://127.0.0.1:8788</span><span class="copy">复制</span></div>
+ <div class="ep"><span class="k">Models</span><span class="v">http://127.0.0.1:8788/v1/models</span><span class="copy">复制</span></div>
+</div>
+<div class="sec">第三方客户端速查 · QUICK REF</div>
+<div class="card">
+ <div class="grid2">
+  <div><div class="lab">Base URL</div><div class="val" style="font-size:12.5px">127.0.0.1:8788/v1</div></div>
+  <div><div class="lab">API Key（免密）</div><div class="val" style="font-size:12.5px">sk-dxzcode</div></div>
+ </div>
+ <div class="grid2">
+  <div><div class="lab">默认主力模型</div><div class="val" style="font-size:12.5px;color:var(--green)">GLM-5.3-Flash</div></div>
+  <div><div class="lab">当前模型通道</div><div class="val" style="font-size:12.5px;color:var(--purple)">直连通道</div></div>
+ </div>
+</div>
+<div class="card"><div class="note">直连通道：无 CLI 进程 · DSH 原生工具卡片 · 信封漂移时明确报错（手动切回 CLI，绝不静默切换）</div></div>
+</div>
+
+<div class="frame"><div class="framehead">方案 A · 原生分组 — ③ 调用记录</div>
+<div class="header card">
+ <div class="hleft"><div class="appicon">⚡</div><div><h1>DX Zcode</h1></div></div>
+ <div class="hright"><div class="seg"><div class="on">CLI通道</div><div>直连通道</div></div><div class="refresh">⟳</div></div>
+</div>
+<div class="tabbar card"><div>账号</div><div>网关</div><div class="on">调用记录</div></div>
+<div class="card">
+ <div class="strip">
+  <div><div class="lab">总调用</div><div class="val">24</div><div class="lab">成功率 92%</div></div>
+  <div><div class="lab">缓存命中</div><div class="val" style="color:var(--green)">77%</div><div class="lab">1.12M tok</div></div>
+  <div><div class="lab">平均速度</div><div class="val" style="color:var(--blue)">52</div><div class="lab">tok/s</div></div>
+  <div><div class="lab">平均耗时</div><div class="val">5.9<small> 分</small></div><div class="lab">失败 2 次</div></div>
+ </div>
+ <div class="loghead"><span>时间</span><span>模型</span><span>账号</span><span>通道</span><span>缓存</span><span>tps</span><span>tok合计</span><span>状态</span></div>
+ <div class="row"><span class="t">11:42:07</span><span class="m">GLM-5.3-Flash</span><span class="a">用户甲</span><span class="ch-cli">CLI</span><span class="c">77%</span><span class="k">52</span><span class="k">408,617</span><span class="s ok">✓ 正常</span></div>
+ <div class="row"><span class="t">11:44:12</span><span class="m">GLM-5.3-Flash</span><span class="a">用户乙</span><span class="ch-dx">直连</span><span class="c">12%</span><span class="k">48</span><span class="k">15,208</span><span class="s bad">✗ 超时</span></div>
+ <div class="row"><span class="t">11:45:03</span><span class="m">GLM-5.3-Flash</span><span class="a">用户甲</span><span class="ch-cli">CLI</span><span class="c">81%</span><span class="k">55</span><span class="k">20,114</span><span class="s ok">✓ 正常</span></div>
+ <div class="row"><span class="t">11:46:40</span><span class="m">GLM-5.3</span><span class="a">用户乙</span><span class="ch-cli">CLI</span><span class="c z">0%</span><span class="k">44</span><span class="k">8,540</span><span class="s ok">✓ 正常</span></div>
+ <div class="row"><span class="t">11:47:15</span><span class="m">GLM-5.3-Flash</span><span class="a">demo_user</span><span class="ch-cli">CLI</span><span class="c z">—</span><span class="k">—</span><span class="k">—</span><span class="s bad">✗ 额度</span></div>
+</div>
+</div>
+
+</div></body></html>

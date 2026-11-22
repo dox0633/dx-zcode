@@ -1,0 +1,61 @@
+{
+  "name": "dx-zcode",
+  "displayName": "DX Zcode",
+  "version": "0.3.8",
+  "description": "DX Zcode：多账号池 + 一键领取福利 + 双协议网关 + DSH 原生 provider（走官方 CLI app-server，零 3012 / 零风控）",
+  "license": "MIT",
+  "type": "module",
+  "main": "lib/index.js",
+  "files": [
+    "lib",
+    "bin",
+    "cordis.patch.yml",
+    "README.md"
+  ],
+  "exports": {
+    ".": "./lib/index.js",
+    "./client": "./lib/client.js",
+    "./package.json": "./package.json"
+  },
+  "dsh": {
+    "bundle": {
+      "patch": "./cordis.patch.yml",
+      "listedByDefault": true,
+      "platforms": [
+        "win32"
+      ]
+    },
+    "compatibility": {
+      "dsh": ">=0.1.5 <0.3.0-0"
+    },
+    "client": {
+      "inject": [
+        "@deepseek-ai/dsh-client-connection",
+        "@deepseek-ai/dsh-client-locale",
+        "@deepseek-ai/dsh-client-ui-slots",
+        "@deepseek-ai/dsh-client-ui-settings",
+        "@deepseek-ai/dsh-client-ui-sidebar-right"
+      ],
+      "platform": "web"
+    }
+  },
+  "dependencies": {},
+  "peerDependencies": {
+    "@deepseek-ai/cordis": ">=4.0.1 <5.0.0",
+    "@deepseek-ai/schemastery": ">=3.18.1 <4.0.0",
+    "@deepseek-ai/dsh-llm": ">=0.1.5 <0.3.0-0"
+  },
+  "engines": {
+    "node": ">=22",
+    "dsh": ">=0.1.5 <0.3.0-0"
+  },
+  "keywords": [
+    "deepseek-harness",
+    "dsh-plugin",
+    "zcode",
+    "zai",
+    "glm",
+    "welfare",
+    "gateway"
+  ]
+}

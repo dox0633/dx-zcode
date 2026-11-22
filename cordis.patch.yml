@@ -1,0 +1,4 @@
+# dx-zcode bundle patch: inserts the plugin row into the profile tree.
+- insert:
+    - id: dx-zcode
+      name: 'dx-zcode'

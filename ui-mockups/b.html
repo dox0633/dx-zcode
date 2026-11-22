@@ -1,0 +1,196 @@
+<!doctype html><html><head><meta charset="utf-8"><title>方案B · 毛玻璃 · Liquid Glass</title><style>
+:root{
+  --blue:#0A84FF;--green:#30D158;--red:#FF453A;--orange:#FF9F0A;--purple:#BF5AF2;
+  --gray:#8E8E93;--sep:rgba(255,255,255,.08);--text2:rgba(255,255,255,.55);--fill:rgba(120,120,128,.26);
+}
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:
+  radial-gradient(700px 340px at 12% -5%,rgba(10,132,255,.20),transparent 62%),
+  radial-gradient(560px 300px at 100% 55%,rgba(191,90,242,.16),transparent 60%),
+  radial-gradient(460px 260px at 55% 110%,rgba(48,209,88,.08),transparent 55%),#08080c;
+  font-family:-apple-system,'SF Pro Text','PingFang SC','Segoe UI',sans-serif;color:#fff;
+  display:flex;justify-content:center;padding:28px 0 70px;-webkit-font-smoothing:antialiased}
+.wrap{width:460px}
+.frame{border:1px dashed rgba(255,255,255,.2);border-radius:8px;padding:18px;margin:0 0 40px}
+.framehead{font-size:11px;color:rgba(255,255,255,.45);margin-bottom:12px;font-family:ui-monospace,monospace;letter-spacing:.4px}
+.sec{font-size:11px;font-weight:600;letter-spacing:.8px;text-transform:uppercase;color:rgba(255,255,255,.5);margin:20px 6px 8px}
+/* liquid glass 卡：折射渐变 + 高光 + 外发光 */
+.card{position:relative;border-radius:22px;overflow:hidden;
+  background:linear-gradient(155deg,rgba(255,255,255,.13),rgba(255,255,255,.045) 55%);
+  backdrop-filter:blur(30px) saturate(190%);-webkit-backdrop-filter:blur(30px) saturate(190%);
+  border:1px solid rgba(255,255,255,.14);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.22),inset 0 -1px 0 rgba(0,0,0,.35),inset 1px 0 0 rgba(255,255,255,.05),0 16px 52px rgba(0,0,0,.55)}
+.card::before{content:'';position:absolute;top:0;left:10%;right:10%;height:1px;
+  background:linear-gradient(90deg,transparent,rgba(255,255,255,.4),transparent)}
+.header{display:flex;align-items:center;justify-content:space-between;padding:16px 16px}
+.hleft{display:flex;gap:12px;align-items:center}
+.appicon{width:46px;height:46px;border-radius:14px;background:linear-gradient(145deg,#0A84FF,#BF5AF2);
+  display:flex;align-items:center;justify-content:center;font-size:22px;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.4),0 0 26px rgba(10,132,255,.55)}
+h1{font-size:19px;font-weight:700;letter-spacing:-.2px;text-shadow:0 0 18px rgba(255,255,255,.28)}
+.sub{font-size:11.5px;color:var(--text2);margin-top:2px}
+.hright{display:flex;align-items:center;gap:10px}
+.seg{display:flex;background:var(--fill);border-radius:99px;padding:3px;border:1px solid rgba(255,255,255,.1)}
+.seg div{padding:5px 11px;font-size:12px;border-radius:99px;color:var(--text2);white-space:nowrap;transition:.18s}
+.seg .on{background:rgba(255,255,255,.24);color:#fff;font-weight:600;box-shadow:0 2px 8px rgba(0,0,0,.35),inset 0 1px 0 rgba(255,255,255,.2)}
+.refresh{width:38px;height:38px;border-radius:50%;background:var(--fill);border:1px solid rgba(255,255,255,.12);
+  display:flex;align-items:center;justify-content:center;font-size:15px;color:#fff}
+.tabbar{display:grid;grid-template-columns:repeat(3,1fr);margin:14px 0;overflow:hidden;border-radius:99px}
+.tabbar div{padding:10px 0;text-align:center;font-size:13px;color:var(--text2)}
+.tabbar .on{color:#fff;font-weight:700;background:rgba(255,255,255,.16);border-radius:99px;margin:0 40px}
+.toolbar{display:flex;align-items:center;justify-content:space-between;padding:2px 2px 12px}
+.cnt{font-size:12.5px;font-weight:600;color:var(--blue)}
+.btnrow{display:flex;gap:8px}
+.btn{font-size:12px;padding:6px 12px;border-radius:99px;background:var(--fill);color:#fff;font-weight:500}
+.btn.p{color:var(--blue);background:rgba(10,132,255,.18)}
+.strip{display:grid;grid-template-columns:repeat(4,1fr)}
+.strip div{padding:13px 6px;text-align:center}
+.strip div+div{border-left:1px solid rgba(255,255,255,.09)}
+.lab{font-size:10px;color:var(--gray);letter-spacing:.3px}
+.val{font-size:17px;font-weight:700;margin-top:3px;font-variant-numeric:tabular-nums;letter-spacing:-.3px}
+.val small{font-size:10px;font-weight:600;color:var(--green)}
+.acct{padding:12px 16px;border-top:1px solid rgba(255,255,255,.08)}
+.arow{display:flex;align-items:center;gap:11px}
+.av{width:38px;height:38px;border-radius:50%;background:linear-gradient(145deg,#3a3a42,#1e1e24);
+  display:flex;align-items:center;justify-content:center;font-size:13px;color:#c7c7cc;flex-shrink:0;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.16)}
+.an{font-size:13.5px;font-weight:600;text-shadow:0 0 12px rgba(255,255,255,.18)}
+.atags{display:flex;gap:5px;margin-top:3px;align-items:center}
+.tag{font-size:9.5px;padding:1.5px 7px;border-radius:99px;font-weight:600}
+.tag-cli{color:var(--blue);background:rgba(10,132,255,.18)}
+.tag-dx{color:var(--purple);background:rgba(191,90,242,.18)}
+.tag-site{color:var(--gray);background:rgba(255,255,255,.07)}
+.aq{margin-left:auto;text-align:right;font-variant-numeric:tabular-nums}
+.aq .n{font-size:14.5px;font-weight:700;color:var(--green);text-shadow:0 0 14px rgba(48,209,88,.4)}
+.aq .n.warn{color:var(--orange);text-shadow:0 0 14px rgba(255,159,10,.4)}
+.aq .l{font-size:9.5px;color:var(--gray)}
+.sw{width:44px;height:27px;border-radius:14px;background:var(--green);position:relative;flex-shrink:0;
+  box-shadow:0 0 14px rgba(48,209,88,.5),inset 0 1px 2px rgba(0,0,0,.15)}
+.sw::after{content:'';position:absolute;width:23px;height:23px;border-radius:50%;background:#fff;
+  top:2px;right:2px;box-shadow:0 2px 6px rgba(0,0,0,.35)}
+.sw.off{background:rgba(120,120,128,.36);box-shadow:none}.sw.off::after{left:2px;right:auto}
+.claim{font-size:11px;padding:5px 11px;border-radius:99px;background:rgba(255,255,255,.1);color:#fff;font-weight:500;border:1px solid rgba(255,255,255,.1)}
+.acsub{display:flex;justify-content:space-between;font-size:11px;color:var(--text2);margin-top:7px;padding-left:49px}
+.warn{color:var(--orange)}
+.model{display:flex;align-items:center;gap:10px;padding:11px 16px;border-top:1px solid rgba(255,255,255,.08);font-size:12.5px}
+.mn{font-weight:600;color:#fff}
+.mtag{font-size:9.5px;padding:1.5px 7px;border-radius:99px;font-weight:600}
+.mtag.f{color:var(--green);background:rgba(48,209,88,.16)}
+.mdesc{font-size:10.5px;color:var(--text2);margin-top:2px}
+.mleft{flex:1}
+.default{font-size:11px;padding:5px 12px;border-radius:99px;background:rgba(10,132,255,.2);color:#6EB8FF;font-weight:600;
+  box-shadow:0 0 16px rgba(10,132,255,.35),inset 0 1px 0 rgba(255,255,255,.16)}
+.header2{display:flex;align-items:center;justify-content:space-between;padding:13px 16px}
+.pill-ok{font-size:11px;padding:3px 10px;border-radius:99px;color:var(--green);background:rgba(48,209,88,.15);font-weight:600;box-shadow:0 0 14px rgba(48,209,88,.3)}
+.grid2{display:grid;grid-template-columns:repeat(2,1fr)}
+.grid2 div{padding:10px 16px}
+.grid2 div:nth-child(odd){border-right:1px solid rgba(255,255,255,.08)}
+.grid2 div:nth-child(n+3){border-top:1px solid rgba(255,255,255,.08)}
+.ep{display:flex;align-items:center;gap:10px;padding:10px 16px;border-top:1px solid rgba(255,255,255,.08);font-size:12px}
+.ep .k{font-size:10.5px;color:var(--gray);width:66px;flex-shrink:0}
+.ep .v{font-family:ui-monospace,'SF Mono',monospace;flex:1;color:rgba(255,255,255,.92);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.copy{font-size:11px;color:#6EB8FF;flex-shrink:0;font-weight:500}
+.note{padding:12px 16px;font-size:11.5px;color:var(--text2)}
+/* 调用记录表 */
+.loghead{display:grid;grid-template-columns:16px 1.05fr .85fr 42px 46px 40px 52px 42px;gap:7px;padding:9px 16px;font-size:10px;font-weight:600;color:var(--gray);letter-spacing:.4px}
+.loghead span:nth-child(n+4){text-align:right}
+.logrow{display:flex;align-items:center;gap:9px;padding:10px 16px;border-top:1px solid rgba(255,255,255,.08);font-size:12px}
+.logrow.hv{background:rgba(255,255,255,.07)}
+.dot{width:9px;height:9px;border-radius:50%;flex-shrink:0}
+.dot-cli{background:var(--blue);box-shadow:0 0 10px rgba(10,132,255,.7)}
+.dot-dx{background:var(--purple);box-shadow:0 0 10px rgba(191,90,242,.7)}
+.m{color:#fff;font-weight:600;flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.a{color:rgba(255,255,255,.72);flex-shrink:0}
+.num{margin-left:auto;font-variant-numeric:tabular-nums;color:rgba(255,255,255,.88);flex-shrink:0}
+.num.g{color:var(--green)}.num.p{color:var(--gray)}
+.st{font-weight:700;flex-shrink:0}
+.ok{color:var(--green)}.bad{color:var(--red);font-size:11px}
+</style></head><body><div class="wrap">
+
+<div class="frame"><div class="framehead">方案 B · 毛玻璃 — ① 账号（默认页）</div>
+<div class="header card">
+ <div class="hleft"><div class="appicon">⚡</div><div><h1>DX Zcode</h1><div class="sub">多账号池 · 领福利 · 官方直连网关 · 零 3012 风控</div></div></div>
+ <div class="hright"><div class="seg"><div class="on">CLI通道</div><div>直连通道</div></div><div class="refresh">⟳</div></div>
+</div>
+<div class="tabbar card"><div class="on">账号</div><div>网关</div><div>调用记录</div></div>
+<div class="toolbar"><div class="cnt">账号数量 (5)</div><div class="btnrow"><div class="btn p">模型管理 (4)</div><div class="btn">登录·国内</div><div class="btn">登录·国际</div><div class="btn">探测福利</div></div></div>
+<div class="card">
+ <div class="strip">
+  <div><div class="lab">活跃账号</div><div class="val">5</div></div>
+  <div><div class="lab">可用额度</div><div class="val" style="color:var(--green)">25.1亿</div></div>
+  <div><div class="lab">待生效</div><div class="val">0</div></div>
+  <div><div class="lab">支持模型</div><div class="val" style="color:var(--blue)">4</div></div>
+ </div>
+ <div class="acct"><div class="arow"><div class="av">窦</div><div><div class="an">用户甲</div><div class="atags"><span class="tag tag-cli">CLI通道</span><span class="tag tag-site">国际站</span></div></div><div class="aq"><div class="n">5.07亿</div><div class="l">可用额度</div></div><div class="sw"></div><div class="claim">领取</div></div><div class="acsub"><span>套餐：ZCODE WEEKEND BUILD</span><span>● 正常</span></div></div>
+ <div class="acct"><div class="arow"><div class="av">杜</div><div><div class="an">用户乙</div><div class="atags"><span class="tag tag-cli">CLI通道</span><span class="tag tag-site">国际站</span></div></div><div class="aq"><div class="n">5.00亿</div><div class="l">可用额度</div></div><div class="sw"></div><div class="claim">领取</div></div><div class="acsub"><span>套餐：ZCODE WEEKEND BUILD</span><span>● 正常</span></div></div>
+ <div class="acct"><div class="arow"><div class="av">do</div><div><div class="an">demo_user</div><div class="atags"><span class="tag tag-cli">CLI通道</span><span class="tag tag-site">国际站</span></div></div><div class="aq"><div class="n warn">4.52亿</div><div class="l">可用额度</div></div><div class="sw"></div><div class="claim">领取</div></div><div class="acsub"><span>套餐：ZCODE WEEKEND BUILD</span><span class="warn">● 额度偏低</span></div></div>
+ <div class="acct"><div class="arow"><div class="av">99</div><div><div class="an">996636269@qq.com</div><div class="atags"><span class="tag tag-cli">CLI通道</span><span class="tag tag-site">国际站</span></div></div><div class="aq"><div class="n">4.99亿</div><div class="l">可用额度</div></div><div class="sw"></div><div class="claim">领取</div></div><div class="acsub"><span>套餐：ZCODE WEEKEND BUILD</span><span>● 正常</span></div></div>
+</div>
+<div class="sec">模型管理 · MODELS</div>
+<div class="card">
+ <div class="model"><div class="mleft"><span class="mn">GLM-5.3-Flash</span><span class="mtag f">福利通道</span><div class="mdesc">福利额度专享 · 优先抵扣官方福利包</div></div><div class="default">默认</div><div class="sw"></div></div>
+ <div class="model"><div class="mleft"><span class="mn">GLM-5.3</span><div class="mdesc">旗舰深度思考 · 消耗账户通用额度</div></div><div class="sw"></div></div>
+ <div class="model"><div class="mleft"><span class="mn">GLM-5.2</span><div class="mdesc">高精度主力模型</div></div><div class="sw off"></div></div>
+ <div class="model"><div class="mleft"><span class="mn">GLM-5-Turbo</span><div class="mdesc">极速轻量模型</div></div><div class="sw off"></div></div>
+</div>
+</div>
+
+<div class="frame"><div class="framehead">方案 B · 毛玻璃 — ② 网关</div>
+<div class="header card">
+ <div class="hleft"><div class="appicon">⚡</div><div><h1>DX Zcode</h1></div></div>
+ <div class="hright"><div class="seg"><div>CLI通道</div><div class="on">直连通道</div></div><div class="refresh">⟳</div></div>
+</div>
+<div class="tabbar card"><div>账号</div><div class="on">网关</div><div>调用记录</div></div>
+<div class="card">
+ <div class="header2"><div style="display:flex;align-items:center;gap:9px"><strong style="font-size:13.5px">官方直连网关</strong><span class="pill-ok">● 运行中</span></div><div class="sw"></div></div>
+ <div class="grid2">
+  <div><div class="lab">端口</div><div class="val">8788</div></div>
+  <div><div class="lab">主机</div><div class="val" style="font-size:13px">127.0.0.1</div></div>
+  <div><div class="lab">运行时长</div><div class="val">2<small> 小时</small></div></div>
+  <div><div class="lab">请求数</div><div class="val">6</div></div>
+ </div>
+</div>
+<div class="sec">API 端点 · ENDPOINTS</div>
+<div class="card">
+ <div class="ep" style="border-top:none"><span class="k">API KEY</span><span class="v">sk-dxzcode（免密模式）</span><span class="copy">复制</span></div>
+ <div class="ep"><span class="k">OpenAI</span><span class="v">http://127.0.0.1:8788/v1</span><span class="copy">复制</span></div>
+ <div class="ep"><span class="k">Anthropic</span><span class="v">http://127.0.0.1:8788</span><span class="copy">复制</span></div>
+ <div class="ep"><span class="k">Models</span><span class="v">http://127.0.0.1:8788/v1/models</span><span class="copy">复制</span></div>
+</div>
+<div class="sec">第三方客户端速查 · QUICK REF</div>
+<div class="card">
+ <div class="grid2">
+  <div><div class="lab">Base URL</div><div class="val" style="font-size:12.5px">127.0.0.1:8788/v1</div></div>
+  <div><div class="lab">API Key（免密）</div><div class="val" style="font-size:12.5px">sk-dxzcode</div></div>
+ </div>
+ <div class="grid2">
+  <div><div class="lab">默认主力模型</div><div class="val" style="font-size:12.5px;color:var(--green)">GLM-5.3-Flash</div></div>
+  <div><div class="lab">当前模型通道</div><div class="val" style="font-size:12.5px;color:var(--purple)">直连通道</div></div>
+ </div>
+</div>
+<div class="card"><div class="note">直连通道：无 CLI 进程 · DSH 原生工具卡片 · 信封漂移时明确报错（手动切回 CLI，绝不静默切换）</div></div>
+</div>
+
+<div class="frame"><div class="framehead">方案 B · 毛玻璃 — ③ 调用记录</div>
+<div class="header card">
+ <div class="hleft"><div class="appicon">⚡</div><div><h1>DX Zcode</h1></div></div>
+ <div class="hright"><div class="seg"><div class="on">CLI通道</div><div>直连通道</div></div><div class="refresh">⟳</div></div>
+</div>
+<div class="tabbar card"><div>账号</div><div>网关</div><div class="on">调用记录</div></div>
+<div class="card">
+ <div class="strip">
+  <div><div class="lab">总调用</div><div class="val">24</div><div class="lab">成功率 92%</div></div>
+  <div><div class="lab">缓存命中</div><div class="val" style="color:var(--green)">77%</div><div class="lab">1.12M tok</div></div>
+  <div><div class="lab">平均速度</div><div class="val" style="color:var(--blue)">52</div><div class="lab">tok/s</div></div>
+  <div><div class="lab">平均耗时</div><div class="val">5.9<small> 分</small></div><div class="lab">失败 2 次</div></div>
+ </div>
+ <div class="loghead"><span></span><span>模型</span><span>账号</span><span>通道</span><span>缓存</span><span>tps</span><span>tok合计</span><span>状态</span></div>
+ <div class="logrow" style="border-top:none"><span class="dot dot-cli"></span><span class="m">GLM-5.3-Flash</span><span class="a">用户甲 · CLI</span><span class="num g">77%</span><span class="num">52</span><span class="num">408,617</span><span class="st ok">✓</span></div>
+ <div class="logrow hv"><span class="dot dot-dx"></span><span class="m">GLM-5.3-Flash</span><span class="a">用户乙 · 直连</span><span class="num g">12%</span><span class="num">48</span><span class="num">15,208</span><span class="st bad">✗ 超时</span></div>
+ <div class="logrow"><span class="dot dot-cli"></span><span class="m">GLM-5.3-Flash</span><span class="a">用户甲 · CLI</span><span class="num g">81%</span><span class="num">55</span><span class="num">20,114</span><span class="st ok">✓</span></div>
+ <div class="logrow"><span class="dot dot-cli"></span><span class="m">GLM-5.3</span><span class="a">用户乙 · CLI</span><span class="num p">0%</span><span class="num">44</span><span class="num">8,540</span><span class="st ok">✓</span></div>
+ <div class="logrow"><span class="dot dot-cli"></span><span class="m">GLM-5.3-Flash</span><span class="a">demo_user · CLI</span><span class="num p">—</span><span class="num p">—</span><span class="num p">—</span><span class="st bad">✗ 额度</span></div>
+</div>
+</div>
+
+</div></body></html>
