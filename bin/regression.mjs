@@ -13,9 +13,9 @@ import os from 'node:os'
 import path from 'node:path'
 
 const results = []
-const test = (name, fn) => {
+const test = async (name, fn) => {
   try {
-    fn()
+    await fn()
     results.push(`PASS ${name}`)
   } catch (error) {
     results.push(`FAIL ${name}: ${error instanceof Error ? error.message : String(error)}`)
@@ -100,13 +100,204 @@ test('gateway: anthropic system + content blocks（image 落占位符）', () =>
 })
 
 // ── welfare.js：归一化 + per-plan 验证码流 ────────────────────────────────────
-const { normalizeDelivery, claimAll: welfareClaimAll } = await import('../lib/welfare.js')
+const { normalizeDelivery, resolveApiAppVersion, apiHeaders, survey, claimAll: welfareClaimAll } = await import('../lib/welfare.js')
+test('welfare: resolveApiAppVersion 旧版本提升至 4.0.0，高版本保留', () => {
+  assert.strictEqual(resolveApiAppVersion(''), '4.0.0')
+  assert.strictEqual(resolveApiAppVersion('unknown'), '4.0.0')
+  assert.strictEqual(resolveApiAppVersion('3.18.2-47'), '4.0.0')
+  assert.strictEqual(resolveApiAppVersion('3.19.0'), '4.0.0')
+  assert.strictEqual(resolveApiAppVersion('4.0.0'), '4.0.0')
+  assert.strictEqual(resolveApiAppVersion('4.1.2'), '4.1.2')
+  const hdrs = apiHeaders({ planToken: 'a.b.c', deviceMid: 'mid' }, '3.18.2-47')
+  assert.strictEqual(hdrs['X-ZCode-App-Version'], '4.0.0')
+})
 test('welfare: normalizeDelivery 提取 plan 卡片', () => {
   const cards = normalizeDelivery({ zcode_plan: { plan_id: 'p1', name: 'N', ends_at: 0, starts_at: 0, entitlements: [{ grant_units: 100, capabilities: ['x'] }] } })
   assert.strictEqual(cards.length, 1)
   assert.strictEqual(cards[0].grantUnits, 100)
 })
-test('A4: per-plan getVerification 每活动现取一枚验证码 + 3007 重试', async () => {
+await test('welfare: survey 429 自动重试并正确识别 3 亿待领包与 GLM-5.4 余额', async () => {
+  const realFetch = globalThis.fetch
+  let mktTries = 0
+  globalThis.fetch = async (url) => {
+    const u = String(url)
+    if (u.includes('/marketing/touch')) {
+      mktTries++
+      if (mktTries === 1) return new Response('', { status: 429 })
+      return new Response(JSON.stringify({
+        code: 0,
+        data: {
+          server_time: 1795778540,
+          deliveries: [{
+            banner: {
+              background: {
+                args: {
+                  zcode_plan: {
+                    plan_id: 'zcode-v3-start-plan-1127',
+                    name: 'ZCODE WEEKEND BUILD',
+                    starts_at: 1795777200,
+                    ends_at: 1796000400,
+                    entitlements: [{ show_name: 'GLM-5.3-Flash', grant_units: 300000000, effective_at: 1795791600, capabilities: ['model:glm-5.3-flash'] }],
+                  },
+                },
+              },
+            },
+          }],
+        },
+      }), { status: 200 })
+    }
+    if (u.includes('/billing/balance')) {
+      return new Response(JSON.stringify({
+        code: 0,
+        data: {
+          server_time: 1795778540,
+          plans: [{
+            plan_id: 'zcode-v3-start-plan-0817',
+            name: 'ZCode Start Plan',
+            status: 'active',
+            starts_at: 1795778513,
+            ends_at: 1796140799,
+            entitlements: [
+              { show_name: 'GLM-5.4', grant_units: 3000000, effective_at: 0, capabilities: ['model:glm-5.4'] },
+              { show_name: 'GLM-5.3-Flash', grant_units: 5000000, effective_at: 0, capabilities: ['model:glm-5.3-flash'] },
+            ],
+          }],
+          balances: [
+            { show_name: 'GLM-5.4', total_units: 3000000, available_units: 3000000 },
+            { show_name: 'GLM-5.3-Flash', total_units: 5000000, available_units: 5000000 },
+          ],
+        },
+      }), { status: 200 })
+    }
+    return new Response(JSON.stringify({ code: 0, data: { plans: [] } }), { status: 200 })
+  }
+  try {
+    const snap = await survey({ planToken: 'a.b.c', deviceMid: 'mid' }, '3.18.2-47')
+    assert.strictEqual(mktTries, 2, '429 应自动重试')
+    assert.strictEqual(snap.notes.length, 0)
+    assert.strictEqual(snap.availableUnits, 8000000)
+    const p1127 = snap.plans.find((p) => p.planId === 'zcode-v3-start-plan-1127')
+    assert.ok(p1127 && p1127.claimable === true && p1127.grantUnits === 300000000)
+    assert.deepStrictEqual(p1127.models, ['GLM-5.3-Flash'])
+    const p0817 = snap.plans.find((p) => p.planId === 'zcode-v3-start-plan-0817')
+    assert.ok(p0817 && p0817.models.includes('GLM-5.4') && p0817.models.includes('GLM-5.3-Flash'))
+  } finally {
+    globalThis.fetch = realFetch
+  }
+})
+await test('pool: 1004 无资格记忆持久化 + 单个 captchaSession 复用 + clearIneligible', async () => {
+  const pool = makePool()
+  pool.entries.set('zc-1004', {
+    id: 'zc-1004',
+    label: '测试号1004',
+    source: 'external',
+    sourceLabel: '测试',
+    dataBaseDir: sandbox,
+    sourceRoot: sandbox,
+    shadowed: false,
+    enabled: true,
+    exhausted: false,
+    error: '',
+    updatedAt: Date.now(),
+    account: { id: 'zc-1004', userId: 'u1004', provider: 'bigmodel', cliVersion: '4.0.0', planToken: 'a.b.c', deviceMid: 'mid1' },
+    client: null,
+    snapshot: null,
+  })
+  pool.entries.set('zc-ok', {
+    id: 'zc-ok',
+    label: '测试号OK',
+    source: 'external',
+    sourceLabel: '测试',
+    dataBaseDir: sandbox,
+    sourceRoot: sandbox,
+    shadowed: false,
+    enabled: true,
+    exhausted: false,
+    error: '',
+    updatedAt: Date.now(),
+    account: { id: 'zc-ok', userId: 'uok', provider: 'bigmodel', cliVersion: '4.0.0', planToken: 'a.b.c', deviceMid: 'mid2' },
+    client: null,
+    snapshot: null,
+  })
+
+  let sessionCreations = 0
+  let solveCalls = 0
+  let sessionClosed = 0
+  pool.captchaSessionFactory = () => {
+    sessionCreations++
+    return {
+      solveNext: async () => {
+        solveCalls++
+        return { param: `sess-param-${solveCalls}`, region: 'cn' }
+      },
+      close: async () => {
+        sessionClosed++
+      },
+    }
+  }
+
+  const realFetch = globalThis.fetch
+  globalThis.fetch = async (url, init) => {
+    const u = String(url)
+    if (u.includes('/marketing/touch')) {
+      return new Response(JSON.stringify({
+        code: 0,
+        data: {
+          server_time: 1795778540,
+          deliveries: [{
+            banner: {
+              zcode_plan: {
+                plan_id: 'plan-300m',
+                name: 'WEEKEND 300M',
+                starts_at: 1795777200,
+                ends_at: 1796000400,
+                entitlements: [{ show_name: 'GLM-5.3-Flash', grant_units: 300000000, effective_at: 1795791600 }],
+              },
+            },
+          }],
+        },
+      }), { status: 200 })
+    }
+    if (u.includes('/billing/balance')) {
+      return new Response(JSON.stringify({ code: 0, data: { server_time: 1795778540, plans: [], balances: [] } }), { status: 200 })
+    }
+    if (u.includes('/billing/claim')) {
+      const hdrs = init?.headers || {}
+      if (hdrs['X-Device-Mid'] === 'mid1') {
+        return new Response(JSON.stringify({ code: 1004, msg: 'no permission' }), { status: 200 })
+      }
+      return new Response(JSON.stringify({ code: 0, message: 'ok' }), { status: 200 })
+    }
+    return new Response(JSON.stringify({ code: 0, data: { plans: [] } }), { status: 200 })
+  }
+
+  try {
+    const progressEvents = []
+    const res = await pool.claimAll({ onProgress: (e) => progressEvents.push(e) })
+    assert.strictEqual(sessionCreations, 1, '多个号只启动 1 个浏览器会话')
+    assert.strictEqual(solveCalls, 2, '每个待领号现解一枚验证码')
+    assert.strictEqual(sessionClosed, 1, '结束必须关闭复用浏览器会话')
+    assert.ok(progressEvents.some((e) => e.phase === 'survey') && progressEvents.some((e) => e.phase === 'claiming'))
+
+    const r1004 = res.find((x) => x.id === 'zc-1004')
+    assert.ok(r1004 && r1004.failed.length === 0 && r1004.skipped.some((s) => s.includes('1004')), '1004 归类为已记忆跳过')
+    const rOk = res.find((x) => x.id === 'zc-ok')
+    assert.ok(rOk && rOk.claimed.length === 1)
+
+    const v1004 = pool.view().find((v) => v.id === 'zc-1004')
+    assert.deepStrictEqual(v1004.ineligiblePlans, ['plan-300m'])
+    assert.strictEqual(v1004.welfare.plans[0].ineligible, true)
+    assert.strictEqual(v1004.welfare.plans[0].claimable, false)
+
+    await pool.clearIneligible('zc-1004')
+    const vAfterClear = pool.view().find((v) => v.id === 'zc-1004')
+    assert.deepStrictEqual(vAfterClear.ineligiblePlans, [])
+    assert.strictEqual(vAfterClear.welfare.plans[0].claimable, true)
+  } finally {
+    globalThis.fetch = realFetch
+  }
+})
+await test('A4: per-plan getVerification 每活动现取一枚验证码 + 3007 重试', async () => {
   let solved = 0
   const plans = [
     { planId: 'p1', name: 'P1', claimable: true },
@@ -149,15 +340,63 @@ test('A4: per-plan getVerification 每活动现取一枚验证码 + 3007 重试'
 
 // ── calllog.js：tokensOf ──────────────────────────────────────────────────────
 const { tokensOf } = await import('../lib/calllog.js')
-test('calllog: uncached input 扣减缓存命中', () => {
+await test('calllog: uncached input 扣减缓存命中', () => {
   const t = tokensOf({ inputTokens: 1000, outputTokens: 100, cacheReadTokens: 800, totalTokens: 1900 })
   assert.strictEqual(t.input, 1000, '显式 inputTokens 视为 uncached，不再扣减')
   assert.strictEqual(t.cached, 800)
   assert.strictEqual(t.cacheRate, 44)
 })
-test('calllog: input_tokens 含缓存时扣减', () => {
+await test('calllog: input_tokens 含缓存时扣减', () => {
   const t = tokensOf({ input_tokens: 1800, output_tokens: 100, cache_read_tokens: 800 })
   assert.strictEqual(t.input, 1000)
+})
+
+// ── direct-channel.js：版本门禁抬升 + 非 SSE JSON 显式归因 + CRLF SSE ──────────
+const { buildDirectHeaders, streamDirectCall } = await import('../lib/direct-channel.js')
+await test('direct-channel: 默认及旧版本请求头抬升至 >= 4.0.0', () => {
+  const hDefault = buildDirectHeaders({ planToken: 'p', deviceMid: 'm' })
+  assert.strictEqual(hDefault['X-ZCode-App-Version'], '4.0.0')
+  assert.ok(hDefault['user-agent'].startsWith('ZCode/4.0.0 '))
+  const hOld = buildDirectHeaders({ planToken: 'p', deviceMid: 'm' }, '3.18.2-47')
+  assert.strictEqual(hOld['X-ZCode-App-Version'], '4.0.0')
+  const hNew = buildDirectHeaders({ planToken: 'p', deviceMid: 'm' }, '4.2.1')
+  assert.strictEqual(hNew['X-ZCode-App-Version'], '4.2.1')
+})
+await test('direct-channel: 非 SSE JSON 显式抛错 + CRLF SSE 正常解析', async () => {
+  const realFetch = globalThis.fetch
+  globalThis.fetch = async () => new Response('{"code":0,"msg":"","logid":"abc"}', {
+    status: 200,
+    headers: { 'content-type': 'application/json; charset=utf-8' },
+  })
+  try {
+    let caught = null
+    try {
+      for await (const _ of streamDirectCall({ planToken: 'p', deviceMid: 'm', modelId: 'GLM-5.3-Flash', messages: [{ role: 'user', content: 'hi' }] })) {}
+    } catch (e) {
+      caught = e
+    }
+    assert.ok(caught && caught.message.includes('非 SSE 响应') && caught.message.includes('abc'))
+
+    const sseBody = [
+      'event: message_start\r\ndata: {"type":"message_start","message":{"usage":{"input_tokens":10}}}\r\n\r\n',
+      'event: content_block_start\r\ndata: {"type":"content_block_start","index":0,"content_block":{"type":"text","text":""}}\r\n\r\n',
+      'event: content_block_delta\r\ndata: {"type":"content_block_delta","index":0,"delta":{"type":"text_delta","text":"OK"}}\r\n\r\n',
+      'event: message_delta\r\ndata: {"type":"message_delta","delta":{"stop_reason":"end_turn"},"usage":{"output_tokens":2}}\r\n\r\n',
+      'event: message_stop\r\ndata: {"type":"message_stop"}\r\n\r\n',
+    ].join('')
+    globalThis.fetch = async () => new Response(sseBody, {
+      status: 200,
+      headers: { 'content-type': 'text/event-stream; charset=utf-8' },
+    })
+    const chunks = []
+    for await (const c of streamDirectCall({ planToken: 'p', deviceMid: 'm', modelId: 'GLM-5.3-Flash', messages: [{ role: 'user', content: 'hi' }] })) {
+      chunks.push(c)
+    }
+    assert.ok(chunks.some((c) => c.type === 'text-delta' && c.text === 'OK'))
+    assert.ok(chunks.some((c) => c.type === 'finish' && c.reason?.kind === 'stop'))
+  } finally {
+    globalThis.fetch = realFetch
+  }
 })
 
 console.log(results.join('\n'))

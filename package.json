@@ -1,7 +1,7 @@
 {
   "name": "dx-zcode",
   "displayName": "DX Zcode",
-  "version": "0.3.8",
+  "version": "0.4.0",
   "description": "DX Zcode：多账号池 + 一键领取福利 + 双协议网关 + DSH 原生 provider（走官方 CLI app-server，零 3012 / 零风控）",
   "license": "MIT",
   "type": "module",
